@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Alex Athlete OS — Draft 2</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    *{box-sizing:border-box}
+    :root{
+      --bg:#050507;--panel:rgba(255,255,255,.075);--panel2:rgba(255,255,255,.115);
+      --line:rgba(255,255,255,.13);--text:#f8fafc;--muted:#94a3b8;--soft:#cbd5e1;
+      --good:#63ffa5;--warn:#ffd166;--bad:#ff5c7a;--blue:#9aa4ff;
+    }
+    body{
+      margin:0;min-height:100vh;color:var(--text);font-family:Inter,Arial,sans-serif;
+      background:
+        radial-gradient(circle at 12% 8%,rgba(65,88,208,.3),transparent 32%),
+        radial-gradient(circle at 92% 4%,rgba(200,80,192,.2),transparent 30%),
+        radial-gradient(circle at 70% 88%,rgba(30,144,255,.18),transparent 35%),
+        #050507;
+    }
+    button,input,textarea{font:inherit}
+    button{cursor:pointer}
+    .app{max-width:1240px;margin:0 auto;padding:24px 18px 60px}
+    header{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:18px}
+    .eyebrow{color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:2px;font-weight:800;margin:0 0 9px}
+    h1{font-size:clamp(2.6rem,7vw,5.6rem);line-height:.9;letter-spacing:-.07em;margin:0;max-width:850px}
+    h2{margin:0;font-size:1.45rem;letter-spacing:-.04em}
+    h3{margin:0}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+    button,.fileBtn{
+      border:1px solid var(--line);background:var(--panel);color:var(--text);
+      padding:11px 14px;border-radius:14px;backdrop-filter:blur(12px)
+    }
+    .fileBtn input{display:none}
+    .primary{background:white;color:#050507;border:0;font-weight:900}
+    .danger{color:var(--bad)}
+    .hidden{display:none!important}
+    .card,.panel{
+      background:linear-gradient(145deg,var(--panel2),rgba(255,255,255,.045));
+      border:1px solid var(--line);border-radius:28px;box-shadow:0 30px 90px rgba(0,0,0,.28);
+      backdrop-filter:blur(18px)
+    }
+    .nav{display:flex;gap:10px;overflow:auto;margin:18px 0 16px;padding-bottom:4px}
+    .nav button.active{background:white;color:#050507;font-weight:900}
+    .hero{display:grid;grid-template-columns:1.35fr .85fr;gap:16px;margin:18px 0}
+    .readiness{padding:28px;display:flex;justify-content:space-between;gap:24px;align-items:center;min-height:230px}
+    .readiness h2{font-size:clamp(5rem,11vw,9rem);line-height:.8;margin:0 0 10px}
+    .muted{color:var(--muted)}
+    .ring{width:165px;height:165px;flex:0 0 auto;border-radius:50%;display:grid;place-items:center;
+      background:radial-gradient(circle closest-side,#10131b 72%,transparent 73%),conic-gradient(white var(--score),rgba(255,255,255,.12) 0)}
+    .ring strong{font-size:1.7rem}
+    .throw{padding:28px;min-height:230px;display:flex;flex-direction:column;justify-content:flex-end}
+    .throw .bigIcon{font-size:2.2rem;margin-bottom:32px}
+    .throw h3{font-size:2rem;letter-spacing:-.05em;margin:5px 0}
+    .good{box-shadow:inset 0 0 70px rgba(99,255,165,.09),0 30px 90px rgba(0,0,0,.28)}
+    .warn{box-shadow:inset 0 0 70px rgba(255,209,102,.11),0 30px 90px rgba(0,0,0,.28)}
+    .bad{box-shadow:inset 0 0 70px rgba(255,92,122,.13),0 30px 90px rgba(0,0,0,.28)}
+    .stats{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin:16px 0}
+    .stat{padding:18px;min-height:142px}
+    .icon{width:42px;height:42px;border-radius:15px;background:rgba(255,255,255,.1);display:grid;place-items:center;margin-bottom:17px}
+    .stat p{color:var(--muted);font-size:.82rem;margin:0 0 5px}
+    .stat h3{font-size:1.65rem;letter-spacing:-.05em;margin-bottom:3px}
+    .stat span{font-size:.78rem;color:var(--muted)}
+    .pageCards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:16px}
+    .pageCard{padding:22px;min-height:190px;text-align:left;transition:.18s ease}
+    .pageCard:hover{transform:translateY(-4px);border-color:rgba(255,255,255,.28)}
+    .pageCard .emoji{font-size:2rem;margin-bottom:22px}
+    .pageCard h2{margin-bottom:8px}
+    .panel{padding:22px;margin-top:16px;overflow:hidden}
+    .panelTop{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:18px}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .form{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+    label{display:grid;gap:7px;color:var(--muted);font-size:.84rem}
+    input,textarea{width:100%;color:white;background:rgba(255,255,255,.055);border:1px solid var(--line);border-radius:14px;padding:12px 13px;outline:0}
+    input:focus,textarea:focus{border-color:rgba(255,255,255,.35);background:rgba(255,255,255,.085)}
+    textarea{min-height:95px;resize:vertical}.full{grid-column:1/-1}
+    .logs{display:grid;gap:10px}
+    .log{display:flex;justify-content:space-between;gap:16px;align-items:center;padding:13px 14px;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.045)}
+    .log strong{display:block}.log span{color:var(--muted);font-size:.86rem}
+    .chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.chips span,.tag{padding:7px 10px;background:rgba(255,255,255,.07);border-radius:999px;color:var(--muted);font-size:.84rem}
+    .goals{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+    .goal{padding:22px}.goal h2{font-size:2.7rem;margin:8px 0 3px}
+    .bar{height:12px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.08);margin:18px 0 10px}.bar div{height:100%;background:white;border-radius:999px}
+    a{color:white}
+    footer{text-align:center;color:var(--muted);padding:28px 0 0}
+    @media(max-width:1000px){.stats{grid-template-columns:repeat(3,1fr)}.form{grid-template-columns:repeat(2,1fr)}.goals,.pageCards,.grid3{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:760px){header,.hero,.grid2{grid-template-columns:1fr;display:grid}.readiness{flex-direction:column;align-items:flex-start}.stats,.form,.goals,.pageCards,.grid3{grid-template-columns:1fr}h1{font-size:3.05rem}.log{align-items:flex-start;flex-direction:column}.chips{justify-content:flex-start}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div>
+      <p class="eyebrow">Draft 2 • Personal Athlete System</p>
+      <h1>Alex Athlete OS</h1>
+    </div>
+    <div class="actions">
+      <button onclick="exportData()">Export</button>
+      <label class="fileBtn">Import<input type="file" accept=".json" onchange="importData(event)"></label>
+      <button class="danger" onclick="clearData()">Clear</button>
+    </div>
+  </header>
+
+  <nav class="nav">
+    <button class="active" onclick="showPage('home',this)">Home</button>
+    <button onclick="showPage('lifting',this)">Lifting</button>
+    <button onclick="showPage('nutrition',this)">Food / Water</button>
+    <button onclick="showPage('recovery',this)">Recovery</button>
+    <button onclick="showPage('baseball',this)">Baseball</button>
+    <button onclick="showPage('goals',this)">Goals</button>
+    <button onclick="showPage('liftoff',this)">Liftoff</button>
+  </nav>
+
+  <section id="home" class="page">
+    <section class="hero">
+      <div class="card readiness">
+        <div>
+          <p class="eyebrow">Readiness</p>
+          <h2 id="readinessNum">--</h2>
+          <p class="muted">Sleep, soreness, energy, hydration, and pitch volume.</p>
+        </div>
+        <div class="ring" id="ring" style="--score:0%"><strong id="ringText">--%</strong></div>
+      </div>
+      <div class="card throw" id="throwCard">
+        <div class="bigIcon">⚾</div>
+        <p class="muted">Throwing Status</p>
+        <h3 id="throwStatus">--</h3>
+        <span class="muted">Simple daily recommendation based on your log.</span>
+      </div>
+    </section>
+
+    <section class="stats" id="stats"></section>
+
+    <section class="pageCards">
+      <button class="card pageCard" onclick="showPageById('lifting')"><div class="emoji">🏋️</div><h2>Lifting</h2><p class="muted">Track top sets, PRs, strength trends, and Liftoff links.</p></button>
+      <button class="card pageCard" onclick="showPageById('nutrition')"><div class="emoji">🍚</div><h2>Food / Water</h2><p class="muted">Calories, protein, bodyweight, water, and weekly averages.</p></button>
+      <button class="card pageCard" onclick="showPageById('recovery')"><div class="emoji">🛌</div><h2>Recovery</h2><p class="muted">Sleep, soreness, hydration, energy, and readiness.</p></button>
+      <button class="card pageCard" onclick="showPageById('baseball')"><div class="emoji">⚾</div><h2>Baseball</h2><p class="muted">Pitch velo, pitch count, arm soreness, bullpen notes.</p></button>
+      <button class="card pageCard" onclick="showPageById('goals')"><div class="emoji">🎯</div><h2>Goals</h2><p class="muted">Bodyweight, bench, velo, and protein targets.</p></button>
+      <button class="card pageCard" onclick="showPageById('liftoff')"><div class="emoji">🔗</div><h2>Liftoff</h2><p class="muted">Save your Liftoff workout links in one place.</p></button>
+    </section>
+
+    <div class="grid2">
+      <div class="panel"><h2>Bodyweight Trend</h2><canvas id="weightChart"></canvas></div>
+      <div class="panel"><h2>Pitch Velocity</h2><canvas id="veloChart"></canvas></div>
+    </div>
+
+    <div class="panel">
+      <div class="panelTop"><div><p class="eyebrow">Daily Check-In</p><h2>Add today’s metrics</h2></div><span>＋</span></div>
+      <form class="form" id="form">
+        <label>Date<input type="date" id="date"></label>
+        <label>Bodyweight<input type="number" step="0.1" id="weight" placeholder="175"></label>
+        <label>Calories<input type="number" id="calories" placeholder="3300"></label>
+        <label>Protein<input type="number" id="protein" placeholder="180"></label>
+        <label>Water Liters<input type="number" step="0.1" id="water" placeholder="3.5"></label>
+        <label>Sleep Hours<input type="number" step="0.1" id="sleep" placeholder="8.5"></label>
+        <label>Energy 1-10<input type="number" step="0.1" id="energy" placeholder="8"></label>
+        <label>Arm Soreness 1-10<input type="number" step="0.1" id="soreness" placeholder="2"></label>
+        <label>Bench Top Weight<input type="number" id="bench" placeholder="155"></label>
+        <label>Squat Top Weight<input type="number" id="squat" placeholder="255"></label>
+        <label>RDL Top Weight<input type="number" id="rdl" placeholder="200"></label>
+        <label>Pitch Velo<input type="number" step="0.1" id="velo" placeholder="80"></label>
+        <label>Pitches Thrown<input type="number" id="pitches" placeholder="0"></label>
+        <label class="full">Notes<textarea id="notes" placeholder="Training, throwing, mechanics, food, recovery, or anything important."></textarea></label>
+        <button class="primary full">Save Check-In</button>
+      </form>
+    </div>
+
+    <div class="panel"><div class="panelTop"><h2>Recent Logs</h2></div><div class="logs" id="logs"></div></div>
+  </section>
+
+  <section id="lifting" class="page hidden">
+    <p class="eyebrow">Lifting</p><h1>Strength tracker.</h1>
+    <section class="stats" id="liftingStats"></section>
+    <div class="panel"><h2>Strength Trend</h2><canvas id="strengthChart"></canvas></div>
+    <div class="grid3">
+      <div class="panel"><p class="eyebrow">Push</p><h2>Bench Priority</h2><p class="muted">Track bench top set, incline work, dips, shoulders, and triceps.</p></div>
+      <div class="panel"><p class="eyebrow">Pull</p><h2>Back + Biceps</h2><p class="muted">Track rows, pulldowns, curls, and rear delt work.</p></div>
+      <div class="panel"><p class="eyebrow">Legs</p><h2>Strength + Athleticism</h2><p class="muted">Track squat, RDL, quads, hamstrings, calves, and explosiveness.</p></div>
+    </div>
+  </section>
+
+  <section id="nutrition" class="page hidden">
+    <p class="eyebrow">Food / Water</p><h1>Bulk without guessing.</h1>
+    <section class="stats" id="nutritionStats"></section>
+    <div class="grid2">
+      <div class="panel"><h2>Calories</h2><canvas id="caloriesChart"></canvas></div>
+      <div class="panel"><h2>Protein + Water</h2><canvas id="proteinChart"></canvas></div>
+    </div>
+  </section>
+
+  <section id="recovery" class="page hidden">
+    <p class="eyebrow">Recovery</p><h1>Stay ready.</h1>
+    <section class="stats" id="recoveryStats"></section>
+    <div class="panel"><h2>Recovery Timeline</h2><canvas id="recoveryChart"></canvas></div>
+  </section>
+
+  <section id="baseball" class="page hidden">
+    <p class="eyebrow">Baseball</p><h1>Velo, volume, arm health.</h1>
+    <section class="stats" id="baseballStats"></section>
+    <div class="grid2">
+      <div class="panel"><h2>Velocity Timeline</h2><canvas id="baseballVeloChart"></canvas></div>
+      <div class="panel"><h2>Pitch Volume</h2><canvas id="pitchChart"></canvas></div>
+    </div>
+  </section>
+
+  <section id="goals" class="page hidden">
+    <p class="eyebrow">Goals</p><h1>Targets that stay visible.</h1>
+    <div class="goals" id="goalGrid"></div>
+  </section>
+
+  <section id="liftoff" class="page hidden">
+    <p class="eyebrow">Liftoff</p><h1>Workout link hub.</h1>
+    <div class="panel">
+      <div class="panelTop"><h2>Add Liftoff Link</h2><span class="tag">Manual link storage for now</span></div>
+      <form class="form" id="liftoffForm">
+        <label>Workout Name<input type="text" id="liftoffName" placeholder="Push Day"></label>
+        <label>Date<input type="date" id="liftoffDate"></label>
+        <label class="full">Liftoff URL<input type="url" id="liftoffUrl" placeholder="https://liftoffrank.com/preset/..."></label>
+        <label class="full">Notes<textarea id="liftoffNotes" placeholder="What this workout is for, changes to make, or how it felt."></textarea></label>
+        <button class="primary full">Save Liftoff Link</button>
+      </form>
+    </div>
+    <div class="panel"><h2>Saved Liftoff Links</h2><div class="logs" id="liftoffLogs"></div></div>
+  </section>
+
+  <footer>Draft 2. Data saves on this browser. Export backups before switching devices.</footer>
+</div>
+
+<script>
+const KEY="alex-athlete-os-draft2";
+const LINK_KEY="alex-athlete-os-liftoff-links";
+let entries=JSON.parse(localStorage.getItem(KEY)||"null")||[{
+  id:"starter",date:new Date().toISOString().slice(0,10),weight:175,calories:3300,protein:180,water:3.5,
+  sleep:8.2,energy:8,soreness:2,bench:155,squat:255,rdl:200,velo:80,pitches:0,
+  notes:"Starter entry. Add your real logs, then delete this."
+}];
+let liftoffLinks=JSON.parse(localStorage.getItem(LINK_KEY)||"null")||[];
+let charts={};
+document.getElementById("date").value=new Date().toISOString().slice(0,10);
+document.getElementById("liftoffDate").value=new Date().toISOString().slice(0,10);
+
+function save(){localStorage.setItem(KEY,JSON.stringify(entries));localStorage.setItem(LINK_KEY,JSON.stringify(liftoffLinks))}
+function sorted(){return [...entries].sort((a,b)=>new Date(a.date)-new Date(b.date))}
+function newest(){return [...entries].sort((a,b)=>new Date(b.date)-new Date(a.date))}
+function latest(k){const e=newest().find(x=>x[k]!==""&&x[k]!=null);return e?Number(e[k]):null}
+function avg(k,n=7){const arr=newest().filter(e=>e[k]!==""&&e[k]!=null).slice(0,n);return arr.length?arr.reduce((s,e)=>s+Number(e[k]),0)/arr.length:null}
+function readiness(){
+  const sleep=avg("sleep",3)??7,soreness=avg("soreness",3)??3,energy=avg("energy",3)??7,water=avg("water",3)??3,pitches=avg("pitches",3)??0;
+  let score=52+Math.min(20,(sleep-6)*8)+Math.min(15,energy*1.4)+Math.min(10,water*2.1)-soreness*5-Math.max(0,(pitches-45)*.18);
+  return Math.max(0,Math.min(100,Math.round(score)));
+}
+function status(){
+  const soreness=latest("soreness")??0,sleep=latest("sleep")??8,pitches=latest("pitches")??0;
+  if(soreness>=7)return["Shut down / recovery","bad"];
+  if(soreness>=5||sleep<6||pitches>75)return["Light catch only","warn"];
+  if(soreness>=3||pitches>45)return["Moderate throwing","warn"];
+  return["Green light","good"];
+}
+function statHTML(data){return data.map(d=>`<div class="card stat"><div class="icon">${d[0]}</div><p>${d[1]}</p><h3>${d[2]}</h3><span>${d[3]}</span></div>`).join("")}
+function renderStats(){
+  document.getElementById("stats").innerHTML=statHTML([
+    ["🔥","Bodyweight",`${latest("weight")??"—"} lb`,"Latest entry"],["🍚","Calories",`${latest("calories")??"—"}`,"Latest day"],["💪","Protein",`${latest("protein")??"—"} g`,"Latest day"],
+    ["🏋️","Bench",`${latest("bench")??"—"} lb`,"Top logged"],["⚾","Pitch Velo",`${latest("velo")??"—"} mph`,"Latest velo"],["🌙","Sleep",`${latest("sleep")??"—"} hr`,"Latest night"]
+  ]);
+  document.getElementById("liftingStats").innerHTML=statHTML([["🏋️","Bench",`${latest("bench")??"—"} lb`,"Latest top weight"],["🦵","Squat",`${latest("squat")??"—"} lb`,"Latest top weight"],["🔗","RDL",`${latest("rdl")??"—"} lb`,"Latest top weight"],["📈","Est. Bench Max",`${Math.round((latest("bench")??0)*1.08)||"—"} lb`,"Rough estimate"],["⚡","Energy",`${latest("energy")??"—"}/10`,"Latest feel"],["🔗","Liftoff Links",`${liftoffLinks.length}`,"Saved workouts"]]);
+  document.getElementById("nutritionStats").innerHTML=statHTML([["🔥","Avg Calories",`${Math.round(avg("calories")??0)||"—"}`,"Last 7 logs"],["💪","Avg Protein",`${Math.round(avg("protein")??0)||"—"} g`,"Last 7 logs"],["💧","Avg Water",`${(avg("water")??0).toFixed(1)} L`,"Last 7 logs"],["⚖️","Bodyweight",`${latest("weight")??"—"} lb`,"Latest"],["🎯","Protein Goal","180 g","Daily target"],["🍽️","Bulk Goal","3300+","Adjust by scale"]]);
+  document.getElementById("recoveryStats").innerHTML=statHTML([["🌙","Avg Sleep",`${(avg("sleep")??0).toFixed(1)} hr`,"Last 7 logs"],["⚡","Avg Energy",`${(avg("energy")??0).toFixed(1)}/10`,"Last 7 logs"],["🦾","Avg Soreness",`${(avg("soreness")??0).toFixed(1)}/10`,"Last 7 logs"],["💧","Avg Water",`${(avg("water")??0).toFixed(1)} L`,"Last 7 logs"],["✅","Readiness",`${readiness()}%`,"Today"],["⚾","Throwing",status()[0],"Current"]]);
+  document.getElementById("baseballStats").innerHTML=statHTML([["⚾","Latest Velo",`${latest("velo")??"—"} mph`,"Most recent"],["🎯","Goal Velo","91 mph","Long-term target"],["🦾","Arm Soreness",`${latest("soreness")??"—"}/10`,"Latest"],["📊","Pitches",`${latest("pitches")??"—"}`,"Latest throwing day"],["✅","Status",status()[0],"Today"],["📈","Avg Velo",`${(avg("velo")??0).toFixed(1)} mph`,"Last 7 logs"]]);
+}
+function renderGoals(){
+  const goals=[["Bodyweight","weight","lb",190,175],["Bench","bench","lb",185,155],["Pitch Velo","velo","mph",91,80],["Protein","protein","g",180,120]];
+  document.getElementById("goalGrid").innerHTML=goals.map(g=>{
+    const current=latest(g[1])??g[4],pct=Math.max(0,Math.min(100,((current-g[4])/(g[3]-g[4]))*100));
+    return `<div class="card goal"><p class="muted">${g[0]}</p><h2>${current}${g[2]}</h2><span class="muted">Target: ${g[3]}${g[2]}</span><div class="bar"><div style="width:${pct}%"></div></div><strong>${Math.round(pct)}%</strong></div>`
+  }).join("");
+}
+function renderLogs(){
+  document.getElementById("logs").innerHTML=newest().slice(0,8).map(e=>`
+    <div class="log"><div><strong>${e.date}</strong><span>${e.notes||"No notes"}</span></div>
+    <div class="chips"><span>${e.weight||"—"} lb</span><span>${e.velo||"—"} mph</span><span>${e.sleep||"—"} hr</span><button class="danger" onclick="del('${e.id}')">Delete</button></div></div>
+  `).join("");
+}
+function renderLiftoff(){
+  document.getElementById("liftoffLogs").innerHTML=liftoffLinks.length?liftoffLinks.map(l=>`
+    <div class="log"><div><strong>${l.name} • ${l.date}</strong><span>${l.notes||"No notes"}</span><br><a href="${l.url}" target="_blank">${l.url}</a></div>
+    <div class="chips"><button class="danger" onclick="delLiftoff('${l.id}')">Delete</button></div></div>
+  `).join(""):`<p class="muted">No Liftoff links saved yet.</p>`;
+}
+function chart(id,type,labels,datasets){
+  if(!document.getElementById(id))return;
+  if(charts[id])charts[id].destroy();
+  charts[id]=new Chart(document.getElementById(id),{
+    type,data:{labels,datasets},options:{responsive:true,plugins:{legend:{labels:{color:"#f8fafc"}}},scales:{x:{ticks:{color:"#94a3b8"},grid:{color:"rgba(255,255,255,.08)"}},y:{ticks:{color:"#94a3b8"},grid:{color:"rgba(255,255,255,.08)"}}}}
+  });
+}
+function renderCharts(){
+  const s=sorted(),labels=s.map(e=>e.date);
+  chart("weightChart","line",labels,[{label:"Bodyweight",data:s.map(e=>e.weight),borderColor:"#fff",backgroundColor:"rgba(255,255,255,.12)",tension:.25,fill:true}]);
+  chart("veloChart","line",labels,[{label:"Pitch Velo",data:s.map(e=>e.velo),borderColor:"#fff",tension:.25}]);
+  chart("strengthChart","line",labels,[{label:"Bench",data:s.map(e=>e.bench),borderColor:"#fff",tension:.25},{label:"Squat",data:s.map(e=>e.squat),borderColor:"#aaa",tension:.25},{label:"RDL",data:s.map(e=>e.rdl),borderColor:"#777",tension:.25}]);
+  chart("caloriesChart","bar",labels,[{label:"Calories",data:s.map(e=>e.calories),backgroundColor:"rgba(255,255,255,.75)"}]);
+  chart("proteinChart","line",labels,[{label:"Protein",data:s.map(e=>e.protein),borderColor:"#fff",tension:.25},{label:"Water",data:s.map(e=>e.water),borderColor:"#aaa",tension:.25}]);
+  chart("recoveryChart","line",labels,[{label:"Sleep",data:s.map(e=>e.sleep),borderColor:"#fff",tension:.25},{label:"Soreness",data:s.map(e=>e.soreness),borderColor:"#aaa",tension:.25},{label:"Energy",data:s.map(e=>e.energy),borderColor:"#777",tension:.25}]);
+  chart("baseballVeloChart","line",labels,[{label:"Pitch Velo",data:s.map(e=>e.velo),borderColor:"#fff",tension:.25}]);
+  chart("pitchChart","bar",labels,[{label:"Pitches",data:s.map(e=>e.pitches),backgroundColor:"rgba(255,255,255,.75)"}]);
+}
+function render(){
+  const r=readiness();document.getElementById("readinessNum").textContent=r;document.getElementById("ring").style.setProperty("--score",r+"%");document.getElementById("ringText").textContent=r+"%";
+  const st=status();document.getElementById("throwStatus").textContent=st[0];document.getElementById("throwCard").className="card throw "+st[1];
+  renderStats();renderGoals();renderLogs();renderLiftoff();setTimeout(renderCharts,50);
+}
+document.getElementById("form").addEventListener("submit",e=>{
+  e.preventDefault();
+  const fields=["date","weight","calories","protein","water","sleep","energy","soreness","bench","squat","rdl","velo","pitches","notes"];
+  const obj={id:crypto.randomUUID?crypto.randomUUID():String(Date.now())};
+  fields.forEach(f=>{const v=document.getElementById(f).value;obj[f]=f==="date"||f==="notes"?v:(v===""?"":Number(v))});
+  entries.push(obj);save();e.target.reset();document.getElementById("date").value=new Date().toISOString().slice(0,10);render();
+});
+document.getElementById("liftoffForm").addEventListener("submit",e=>{
+  e.preventDefault();
+  liftoffLinks.push({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),name:liftoffName.value,date:liftoffDate.value,url:liftoffUrl.value,notes:liftoffNotes.value});
+  save();e.target.reset();document.getElementById("liftoffDate").value=new Date().toISOString().slice(0,10);render();
+});
+function del(id){entries=entries.filter(e=>e.id!==id);save();render()}
+function delLiftoff(id){liftoffLinks=liftoffLinks.filter(e=>e.id!==id);save();render()}
+function clearData(){if(confirm("Clear all entries and Liftoff links?")){entries=[];liftoffLinks=[];save();render()}}
+function exportData(){const blob=new Blob([JSON.stringify({entries,liftoffLinks},null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="alex-athlete-os-draft2-data.json";a.click()}
+function importData(ev){const file=ev.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const data=JSON.parse(reader.result);entries=data.entries||data;liftoffLinks=data.liftoffLinks||[];save();render()}catch{alert("Bad file")}};reader.readAsText(file)}
+function showPage(id,btn){document.querySelectorAll(".page").forEach(x=>x.classList.add("hidden"));document.getElementById(id).classList.remove("hidden");document.querySelectorAll(".nav button").forEach(x=>x.classList.remove("active"));btn.classList.add("active");setTimeout(renderCharts,50);scrollTo({top:0,behavior:"smooth"})}
+function showPageById(id){const btn=[...document.querySelectorAll(".nav button")].find(b=>b.textContent.toLowerCase().includes(id==="nutrition"?"food":id));showPage(id,btn)}
+render();
+</script>
+</body>
+</html>
