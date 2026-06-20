@@ -3,11 +3,12 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-<title>Alex Athlete OS — Final Direction</title>
+<title>Alex Athlete OS</title>
 <meta name="theme-color" content="#030306" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-title" content="Athlete OS" />
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <style>
 *{box-sizing:border-box}
 :root{
@@ -54,7 +55,7 @@ button{cursor:pointer}
   margin-top:26px;padding:16px;border:1px solid var(--line);border-radius:22px;background:var(--panel);
   color:var(--muted);font-size:.84rem;line-height:1.38
 }
-.content{max-width:1210px;width:100%;margin:0 auto;padding:34px 24px 80px}
+.content{max-width:1210px;width:100%;margin:0 auto;padding:34px 24px 80px}.subtitle{max-width:620px;margin:14px 0 0;color:var(--muted);font-size:1rem;line-height:1.5}
 .mobileNav{display:none}
 header{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;margin-bottom:24px}
 .eyebrow{color:var(--accent2);font-size:.70rem;text-transform:uppercase;letter-spacing:2.4px;font-weight:900;margin:0 0 10px}
@@ -84,6 +85,12 @@ button:hover,.fileBtn:hover{border-color:var(--line2);transform:translateY(-1px)
 .ring strong{font-size:1.8rem}
 .coachCard{padding:26px;min-height:242px;display:grid;align-content:space-between;gap:18px}
 .coachText{font-size:1.05rem;line-height:1.55;color:#dbe3ee}
+.coachGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:16px}
+.coachMini{padding:16px}.coachMini p{color:var(--muted);font-size:.78rem;margin:0 0 5px}.coachMini h3{font-size:1.5rem;letter-spacing:-.05em}
+.coachFeed{display:grid;gap:10px;margin-top:14px}.coachItem{padding:14px 15px;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.04)}
+.coachItem strong{display:block;margin-bottom:5px}.coachItem p{margin:0;color:var(--muted);font-size:.9rem;line-height:1.4}
+.coachGood{border-color:rgba(115,255,184,.24)}.coachWarn{border-color:rgba(255,209,102,.25)}.coachBad{border-color:rgba(255,99,127,.27)}.coachInfo{border-color:rgba(168,178,255,.24)}
+@media(max-width:820px){.coachGrid{grid-template-columns:1fr}}
 .askRow{display:grid;grid-template-columns:1fr auto;gap:10px}
 input,textarea,select{
   width:100%;color:white;background:rgba(255,255,255,.045);border:1px solid var(--line);border-radius:15px;padding:12px 13px;outline:0
@@ -111,7 +118,7 @@ th,td{text-align:left;padding:15px 14px;border-bottom:1px solid var(--line)}
 th{font-size:.74rem;color:var(--muted);text-transform:uppercase;letter-spacing:1.4px}
 td{font-size:.94rem;color:#e8eef7}
 tr:last-child td{border-bottom:0}
-.goalInputs{display:grid;grid-template-columns:1fr 1fr;gap:8px;min-width:170px}.goalInputs input{padding:8px 9px;border-radius:11px}.goalInputs input:disabled{opacity:.55;cursor:not-allowed}.groupRow td{background:rgba(255,255,255,.075);color:#fff;font-weight:900;text-transform:uppercase;letter-spacing:1.4px;font-size:.72rem}.miniBtn{padding:8px 10px;border-radius:11px;font-size:.82rem}.progressMini{height:9px;width:140px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden}
+.goalInputs{display:grid;grid-template-columns:1fr 1fr;gap:8px;min-width:170px}.goalInputs input{padding:8px 9px;border-radius:11px}.goalInputs input:disabled{opacity:.55;cursor:not-allowed}.groupRow td{background:rgba(255,255,255,.075);color:#fff;font-weight:900;text-transform:uppercase;letter-spacing:1.4px;font-size:.72rem}.miniBtn{padding:8px 10px;border-radius:11px;font-size:.82rem}.importPreview{display:grid;gap:10px;margin-top:14px}.importItem{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:12px 13px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.04)}.importItem strong{display:block}.importItem span{color:var(--muted);font-size:.84rem}.ocrStatus{color:var(--muted);font-size:.9rem;margin-top:10px}.rawOcr{white-space:pre-wrap;max-height:220px;overflow:auto;font-size:.78rem;color:var(--muted);background:rgba(255,255,255,.035);border:1px solid var(--line);border-radius:14px;padding:12px;margin-top:12px}.progressMini{height:9px;width:140px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden}
 .progressMini div{height:100%;border-radius:999px;background:linear-gradient(90deg,#fff,#a8b2ff)}
 .logs{display:grid;gap:10px}
 .log{display:flex;justify-content:space-between;gap:16px;align-items:center;padding:13px 14px;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.04)}
@@ -132,13 +139,13 @@ footer{text-align:center;color:var(--muted);padding:28px 0 0}
 <aside class="sidebar">
   <div class="brand"><div class="logo">AH</div><div><strong>Athlete OS</strong><span>Performance system</span></div></div>
   <nav class="nav" id="sideNav"></nav>
-  <div class="sideNote">Built around three things: recovery, strength, and baseball readiness. No clutter.</div>
+  <div class="sideNote">Recovery, strength, and baseball readiness. Built to be fast enough to use every day.</div>
 </aside>
 <nav class="mobileNav" id="mobileNav"></nav>
 
 <main class="content">
 <header>
-  <div><p class="eyebrow">Final Direction • Athlete Dashboard</p><h1>Alex Athlete OS</h1></div>
+  <div><p class="eyebrow">Personal Performance System</p><h1>Alex Athlete OS</h1><p class="subtitle">A private dashboard for recovery, strength progression, and baseball readiness.</p></div>
 </header>
 
 <section id="home" class="page">
@@ -168,6 +175,12 @@ footer{text-align:center;color:var(--muted);padding:28px 0 0}
     </div>
   </section>
 
+  <section class="coachGrid" id="coachGrid"></section>
+  <div class="panel">
+    <div class="panelTop"><div><p class="eyebrow">Coach Feed</p><h2>Recommendations</h2></div><span class="tag">Rule-based AI coach</span></div>
+    <div class="coachFeed" id="coachFeed"></div>
+  </div>
+
   <section class="metrics" id="homeMetrics"></section>
 
   <section class="pageCards">
@@ -179,6 +192,17 @@ footer{text-align:center;color:var(--muted);padding:28px 0 0}
   <div class="panel">
     <div class="panelTop"><div><p class="eyebrow">Daily Check-In</p><h2>Log</h2></div><span class="tag">Daily essentials</span></div>
     <form class="form" id="dailyForm"></form>
+  </div>
+
+  <div class="panel">
+    <div class="panelTop"><div><p class="eyebrow">Liftoff Import</p><h2>Upload workout screenshots</h2></div><span class="tag">Screenshot import</span></div>
+    <div class="form">
+      <label class="full">Liftoff Screenshots<input type="file" id="liftoffImages" accept="image/*" multiple></label>
+      <button class="primary full" onclick="processLiftoffScreenshots()" type="button">Read Screenshots</button>
+    </div>
+    <p class="ocrStatus" id="ocrStatus">Upload one or more Liftoff screenshots. Athlete OS will scan the workout, preview detected lifts, then update Strength.</p>
+    <div class="importPreview" id="importPreview"></div>
+    <div id="rawOcrWrap" class="hidden"><div class="rawOcr" id="rawOcr"></div></div>
   </div>
 </section>
 
@@ -230,9 +254,13 @@ footer{text-align:center;color:var(--muted);padding:28px 0 0}
       <button class="danger" onclick="clearData()">Clear Local Data</button>
     </div>
   </div>
+  <div class="panel">
+    <h2>Final Build</h2>
+    <p class="muted">Includes Recovery, Strength, Baseball, homepage Coach, grouped lift table, locked goal editing, Add Lift, and Liftoff screenshot import.</p>
+  </div>
 </section>
 
-<footer>Data saves in this browser. Use Settings → Export to back it up.</footer>
+<footer>Athlete OS saves locally in this browser. Back up from Settings before switching devices.</footer>
 </main>
 </div>
 
@@ -303,6 +331,7 @@ function normalizeGoals(){
 }
 normalizeGoals();
 let charts={};
+let pendingLiftoffImport=[];
 const pages=[["home","Home"],["recovery","Recovery"],["strength","Strength"],["baseball","Baseball"],["settings","Settings"]];
 function save(){localStorage.setItem(KEYS.daily,JSON.stringify(daily));localStorage.setItem(KEYS.lifts,JSON.stringify(lifts));localStorage.setItem(KEYS.throws,JSON.stringify(throws));localStorage.setItem(KEYS.goals,JSON.stringify(goals));localStorage.setItem("aos-final-lift-library",JSON.stringify(liftLibrary))}
 function nav(){for(const id of ["sideNav","mobileNav"])document.getElementById(id).innerHTML=pages.map(p=>`<button class="${p[0]==="home"?"active":""}" onclick="showPage('${p[0]}')">${p[1]}</button>`).join("")}
@@ -359,7 +388,7 @@ function renderMetrics(){
   strengthMetrics.innerHTML=statHTML([["Tracked Lifts",new Set(lifts.map(l=>l.lift)).size,"Unique lifts"],["Best Bench Est.",`${bestLift("Bench Press")?.oneRm??"—"} lb`,"Estimated 1RM"],["Bench Goal",`${goals["Bench Press"].weight} × ${goals["Bench Press"].reps}`,"Target"],["Latest Lift",newest(lifts)[0]?.lift||"—","Most recent"]]);
   baseballMetrics.innerHTML=statHTML([["Arm Status",status[0],status[1]],["Latest Velo",`${velo} mph`,"Most recent"],["Latest Pitches",`${latest(throws,"pitches")??"—"}`,"Most recent"],["Soreness",`${latest(throws,"soreness")??latest(daily,"soreness")??"—"}/10`,"Latest"]]);
 }
-function bestLift(name){const rows=newest(lifts).filter(l=>l.lift.toLowerCase()===name.toLowerCase());if(!rows.length)return null;const last=rows[0];return{...last,oneRm:e1rm(last.weight,last.reps)}}
+function bestLift(name){const rows=newest(lifts).filter(l=>l.lift.toLowerCase()===name.toLowerCase());if(!rows.length)return null;const last=rows[0];return{...last,oneRm:last.importedOneRm||e1rm(last.weight,last.reps)}}
 function liftRows(){
   const liftNamesFromLogs=[...new Set(lifts.map(l=>l.lift))];
   liftNamesFromLogs.forEach(name=>{
@@ -425,31 +454,128 @@ function saveLiftGoalEditing(){
   render();
 }
 
+function coachData(){
+  const score=recoveryScore();
+  const status=armStatus();
+  const weight=latest(daily,"weight")??0;
+  const calAvg=avg(daily,"calories")??0;
+  const protAvg=avg(daily,"protein")??0;
+  const carbAvg=avg(daily,"carbs")??0;
+  const fatAvg=avg(daily,"fat")??0;
+  const sleepAvg=avg(daily,"sleep")??0;
+  const waterAvg=avg(daily,"water")??0;
+  const energyAvg=avg(daily,"energy")??0;
+  const soreness=latest(throws,"soreness")??latest(daily,"soreness")??0;
+  const pitches=latest(throws,"pitches")??0;
+  const velo=latest(throws,"velo")??0;
+  const bench=bestLift("Bench Press");
+  const recentWeights=sorted(daily).filter(e=>e.weight!==""&&e.weight!=null).slice(-10);
+  let weightRate=0;
+  if(recentWeights.length>=2){
+    const first=recentWeights[0],last=recentWeights[recentWeights.length-1];
+    const days=Math.max(1,(new Date(last.date)-new Date(first.date))/86400000);
+    weightRate=((Number(last.weight)-Number(first.weight))/days)*7;
+  }
+  return{score,status,weight,calAvg,protAvg,carbAvg,fatAvg,sleepAvg,waterAvg,energyAvg,soreness,pitches,velo,bench,weightRate};
+}
+function addCoachItem(items,type,title,text){
+  items.push({type,title,text});
+}
+function coachItems(){
+  const d=coachData();
+  const items=[];
+
+  if(d.score>=82)addCoachItem(items,"Good","High readiness","Recovery is strong enough for a productive training day. Push the planned work, but do not turn every set into a max.");
+  else if(d.score>=65)addCoachItem(items,"Info","Normal readiness","You are in a solid training zone. Keep the session controlled and focus on quality output.");
+  else if(d.score>=45)addCoachItem(items,"Warn","Low readiness","Recovery is below ideal. Keep throwing conservative and avoid unnecessary max-effort lifting.");
+  else addCoachItem(items,"Bad","Recovery priority","Recovery is low. Today should be food, water, sleep, arm care, and low-stress movement.");
+
+  if(d.soreness>=7)addCoachItem(items,"Bad","Arm soreness red flag",`Soreness is ${d.soreness}/10. Do not throw hard today.`);
+  else if(d.soreness>=5)addCoachItem(items,"Warn","Arm is not fresh",`Soreness is ${d.soreness}/10. Light catch only is the safer move.`);
+  else if(d.pitches>75)addCoachItem(items,"Warn","Pitch volume is high",`Last pitch count was ${d.pitches}. Recovery throwing or rest is smarter than a bullpen.`);
+  else if(d.soreness<=3)addCoachItem(items,"Good","Arm status is usable","Arm soreness is low enough for normal throwing if warmups feel clean.");
+
+  if(d.weight && d.weight<goals.Bodyweight){
+    if(d.weightRate<0.25)addCoachItem(items,"Warn","Bulk is slow",`Weight gain is around ${d.weightRate.toFixed(2)} lb/week. Add 150–250 calories if this holds.`);
+    else if(d.weightRate>1.25)addCoachItem(items,"Warn","Bulk may be too fast",`Weight gain is around ${d.weightRate.toFixed(2)} lb/week. Watch waist/conditioning.`);
+    else addCoachItem(items,"Good","Bulk pace looks good",`Weight trend is around ${d.weightRate.toFixed(2)} lb/week, which is a solid gaining range.`);
+  }
+
+  if(d.protAvg && d.protAvg<goals.Protein*.9)addCoachItem(items,"Warn","Protein below target",`Protein average is ${Math.round(d.protAvg)}g. Aim closer to ${goals.Protein}g.`);
+  if(d.carbAvg && d.carbAvg<goals.Carbs*.8)addCoachItem(items,"Info","Carbs may be low",`Carbs average ${Math.round(d.carbAvg)}g. Higher carbs can help lifting and throwing days.`);
+  if(d.fatAvg && d.fatAvg<goals.Fat*.7)addCoachItem(items,"Warn","Fat intake is low",`Fat average is ${Math.round(d.fatAvg)}g. Do not let it stay too low for recovery.`);
+  if(d.sleepAvg && d.sleepAvg<7)addCoachItem(items,"Warn","Sleep bottleneck",`Sleep average is ${d.sleepAvg.toFixed(1)} hours. This is probably limiting recovery.`);
+  if(d.waterAvg && d.waterAvg<3)addCoachItem(items,"Info","Hydration target",`Water average is ${d.waterAvg.toFixed(1)}L. Push toward 3–4L.`);
+
+  if(d.bench){
+    const benchGoal=goals["Bench Press"]?.weight||185;
+    const pct=Math.round((d.bench.oneRm/benchGoal)*100);
+    if(pct>=100)addCoachItem(items,"Good","Bench goal ready",`Bench estimated 1RM is ${d.bench.oneRm} lb. You are at or above the goal.`);
+    else if(pct>=90)addCoachItem(items,"Good","Bench is close",`Bench estimated 1RM is ${d.bench.oneRm} lb, about ${pct}% of goal.`);
+    else addCoachItem(items,"Info","Bench path",`Bench estimated 1RM is ${d.bench.oneRm} lb, about ${pct}% of goal.`);
+  }
+
+  return items;
+}
 function coachSummaryText(){
-  const score=recoveryScore(),status=armStatus(),weight=latest(daily,"weight"),calAvg=avg(daily,"calories"),protAvg=avg(daily,"protein"),carbAvg=avg(daily,"carbs"),fatAvg=avg(daily,"fat"),sore=latest(throws,"soreness")??latest(daily,"soreness")??0;
-  let msg=[];
-  if(score>=80)msg.push("Recovery is strong today.");
-  else if(score>=60)msg.push("Recovery is decent, but not perfect.");
-  else msg.push("Recovery is low, so keep training stress controlled.");
-  msg.push(`Arm status is ${status[0].toLowerCase()}: ${status[1].toLowerCase()}.`);
-  if(weight && weight<goals.Bodyweight && calAvg<3300)msg.push("Bodyweight is still below your goal, so calories may need to come up.");
-  if(protAvg && protAvg<goals.Protein*.9)msg.push("Protein has been under target recently.");
-  if(carbAvg && carbAvg<goals.Carbs*.8)msg.push("Carbs are low for hard training days.");
-  if(fatAvg && fatAvg<goals.Fat*.7)msg.push("Fat intake has been low, so keep an eye on recovery and hormones.");
-  if(sore>=5)msg.push("Arm soreness is high enough to avoid hard throwing.");
-  return msg.join(" ");
+  const d=coachData();
+  const primary=coachItems()[0];
+  let sentence=`Recovery is ${d.score}%. Arm status is ${d.status[0].toLowerCase()} — ${d.status[1].toLowerCase()}.`;
+  if(primary)sentence+=` ${primary.text}`;
+  return sentence;
+}
+function renderAdvancedCoach(){
+  const d=coachData();
+  coachGrid.innerHTML=`
+    <div class="card coachMini"><p>Coach Score</p><h3>${d.score}%</h3><span class="muted">Today</span></div>
+    <div class="card coachMini"><p>Bulk Pace</p><h3>${d.weightRate?d.weightRate.toFixed(2):"—"} lb/wk</h3><span class="muted">Recent trend</span></div>
+    <div class="card coachMini"><p>Throwing</p><h3>${d.status[0]}</h3><span class="muted">${d.status[1]}</span></div>
+  `;
+  coachFeed.innerHTML=coachItems().map(i=>`
+    <div class="coachItem coach${i.type}">
+      <strong>${i.title}</strong>
+      <p>${i.text}</p>
+    </div>
+  `).join("");
 }
 function askCoach(){
-  const q=coachQuestion.value.toLowerCase().trim(),score=recoveryScore(),status=armStatus(),bench=bestLift("Bench Press"),weight=latest(daily,"weight"),prot=avg(daily,"protein"),carb=avg(daily,"carbs"),fatAvg=avg(daily,"fat"),cal=avg(daily,"calories"),sleep=avg(daily,"sleep"),sore=latest(throws,"soreness")??latest(daily,"soreness")??0;
+  const q=coachQuestion.value.toLowerCase().trim();
+  const d=coachData();
+  const bench=bestLift("Bench Press");
   let a="";
   if(!q)a="idk twin";
-  else if(q.includes("throw")||q.includes("pitch")||q.includes("bullpen"))a=`Arm status is ${status[0]}. ${status[1]}. Recovery is ${score}%, soreness is ${sore}/10.`;
-  else if(q.includes("bench")||q.includes("lift")||q.includes("workout"))a=score>=65?`You can lift today. Recovery is ${score}%. ${bench?`Bench estimate is ${bench.oneRm} lb against a ${goals["Bench Press"].weight} lb goal.`:""}`:`Lift lighter today. Recovery is only ${score}%.`;
-  else if(q.includes("calorie")||q.includes("eat")||q.includes("bulk")||q.includes("weight"))a=weight<goals.Bodyweight?`You are ${goals.Bodyweight-weight} lb from your bodyweight goal. Current calorie average is ${Math.round(cal||0)}. If scale weight is not rising, add 150–250 calories.`:`You are at or above your bodyweight goal. Maintain or slow bulk depending on physique.`;
-  else if(q.includes("protein"))a=prot>=goals.Protein?`Protein is on target at about ${Math.round(prot)} g/day.`:`Protein is low at about ${Math.round(prot||0)} g/day. Aim for ${goals.Protein} g.`;
-  else if(q.includes("carb"))a=carb>=goals.Carbs*.85?`Carbs look solid at about ${Math.round(carb)} g/day. That should support training.`:`Carbs are low at about ${Math.round(carb||0)} g/day. For hard lifting or throwing days, bring them up.`;
-  else if(q.includes("fat"))a=fatAvg>=goals.Fat*.75?`Fat intake looks fine at about ${Math.round(fatAvg)} g/day.`:`Fat is low at about ${Math.round(fatAvg||0)} g/day. Do not let it stay too low for recovery.`;
-  else if(q.includes("sleep")||q.includes("recovery")||q.includes("tired"))a=sleep>=8?`Sleep is solid at ${sleep.toFixed(1)} hours average. Recovery score is ${score}%.`:`Sleep is limiting you at ${sleep?sleep.toFixed(1):"—"} hours average. Get that up before pushing max effort.`;
+  else if(q.includes("throw")||q.includes("pitch")||q.includes("bullpen")||q.includes("catch")){
+    a=`Arm status is ${d.status[0]}. ${d.status[1]}. Recovery is ${d.score}%, soreness is ${d.soreness}/10, and latest pitch count is ${d.pitches||"—"}.`;
+  }
+  else if(q.includes("bench")){
+    a=bench?`Bench latest top set is ${bench.weight} × ${bench.reps}, estimated 1RM ${bench.oneRm} lb. Recovery is ${d.score}%, so ${d.score>=65?"benching is reasonable if your warmups feel good":"keep it lighter today"}.`:"No bench data logged yet.";
+  }
+  else if(q.includes("lift")||q.includes("workout")||q.includes("train")){
+    a=d.score>=75?`Training today is a good idea. Recovery is ${d.score}%. Push quality top sets, then get volume in.`:d.score>=55?`You can train, but keep it controlled. Recovery is ${d.score}%.`:`I would reduce intensity today. Recovery is ${d.score}%.`;
+  }
+  else if(q.includes("calorie")||q.includes("eat")||q.includes("bulk")||q.includes("weight")){
+    if(!d.weight)a="Log bodyweight first so I can judge the bulk.";
+    else if(d.weight>=goals.Bodyweight)a=`You are at ${d.weight} lb, which is at or above your ${goals.Bodyweight} lb goal.`;
+    else a=`You are ${(goals.Bodyweight-d.weight).toFixed(1)} lb from your bodyweight goal. Recent gain rate is ${d.weightRate.toFixed(2)} lb/week. ${d.weightRate<0.25?"Add 150–250 calories.":"Keep calories consistent."}`;
+  }
+  else if(q.includes("protein")){
+    a=d.protAvg>=goals.Protein?`Protein is solid at about ${Math.round(d.protAvg)}g/day.`:`Protein is around ${Math.round(d.protAvg||0)}g/day. Aim closer to ${goals.Protein}g.`;
+  }
+  else if(q.includes("carb")){
+    a=d.carbAvg>=goals.Carbs*.85?`Carbs look solid at about ${Math.round(d.carbAvg)}g/day.`:`Carbs are around ${Math.round(d.carbAvg||0)}g/day. Higher carbs can help hard training days.`;
+  }
+  else if(q.includes("fat")){
+    a=d.fatAvg>=goals.Fat*.75?`Fat intake looks fine at about ${Math.round(d.fatAvg)}g/day.`:`Fat is around ${Math.round(d.fatAvg||0)}g/day. Do not let it stay too low.`;
+  }
+  else if(q.includes("sleep")||q.includes("recovery")||q.includes("tired")){
+    a=d.sleepAvg>=8?`Sleep is strong at ${d.sleepAvg.toFixed(1)} hours average. Recovery is ${d.score}%.`:`Sleep is ${d.sleepAvg?d.sleepAvg.toFixed(1):"—"} hours average. That is probably limiting recovery.`;
+  }
+  else if(q.includes("sore")||q.includes("arm")){
+    a=`Soreness is ${d.soreness}/10 and arm status is ${d.status[0]}. ${d.status[1]}.`;
+  }
+  else if(q.includes("velo")||q.includes("velocity")){
+    a=d.velo?`Latest logged velo is ${d.velo} mph. Goal is ${goals["Pitch Velo"]} mph.`:"No velocity logged yet.";
+  }
   else a="idk twin";
   coachAnswer.textContent=a;
 }
@@ -459,8 +585,179 @@ function renderLogs(){
 }
 function chart(id,type,labels,datasets){if(!document.getElementById(id))return;if(charts[id])charts[id].destroy();charts[id]=new Chart(document.getElementById(id),{type,data:{labels,datasets},options:{responsive:true,plugins:{legend:{labels:{color:"#f8fafc"}}},scales:{x:{ticks:{color:"#94a3b8"},grid:{color:"rgba(255,255,255,.08)"}},y:{ticks:{color:"#94a3b8"},grid:{color:"rgba(255,255,255,.08)"}}}}})}
 function renderCharts(){const d=sorted(daily),labels=d.map(e=>e.date);chart("weightChart","line",labels,[{label:"Bodyweight",data:d.map(e=>e.weight),borderColor:"#fff",backgroundColor:"rgba(255,255,255,.12)",tension:.25,fill:true}]);chart("nutritionChart","line",labels,[{label:"Calories",data:d.map(e=>e.calories),borderColor:"#fff",tension:.25},{label:"Protein",data:d.map(e=>e.protein),borderColor:"#aaa",tension:.25},{label:"Carbs",data:d.map(e=>e.carbs),borderColor:"#777",tension:.25},{label:"Fat",data:d.map(e=>e.fat),borderColor:"#555",tension:.25}])}
+
+function normalizeLiftNameFromOCR(name){
+  return name
+    .replace(/^.*?(?=[A-Z][a-z]+\s)/,"")
+    .replace(/[^\w\s\/\-]/g,"")
+    .replace(/\bDumbbe[l1]l\b/gi,"Dumbbell")
+    .replace(/\bTricep\b/gi,"Triceps")
+    .replace(/\bPushdowm\b/gi,"Pushdown")
+    .replace(/\bBayesian\b/gi,"Bayesian")
+    .replace(/\b1RM\b/gi,"")
+    .replace(/\s+/g," ")
+    .trim();
+}
+function isLikelyLiftName(line){
+  if(!line)return false;
+  if(line.length<5||line.length>60)return false;
+  if(/\b(Set|Lbs|Reps|1RM|Add a comment|2026|AM|PM|lbs)\b/i.test(line))return false;
+  if(/^\d+/.test(line))return false;
+  const words=line.split(/\s+/).length;
+  const hasLiftWord=/curl|press|pushdown|extension|raise|row|pulldown|squat|bench|deadlift|rdl|calf|dip|pull|fly|lunge|leg|hamstring|shoulder|tricep|bicep|bayesian|hammer|dumbbell|cable/i.test(line);
+  return words>=1 && hasLiftWord;
+}
+function parseLiftoffText(text){
+  const lines=text.split(/\n+/).map(l=>l.trim()).filter(Boolean);
+  const found=[];
+  let current=null;
+
+  for(let raw of lines){
+    let line=raw.replace(/[|]/g," ").replace(/\s+/g," ").trim();
+
+    // Fix common OCR confusions
+    line=line.replace(/\bO\b/g,"0").replace(/\bl\b/g,"1");
+
+    if(isLikelyLiftName(line)){
+      current={name:normalizeLiftNameFromOCR(line),sets:[]};
+      found.push(current);
+      continue;
+    }
+
+    // Liftoff rows usually look like: 1 80 10 107
+    const nums=line.match(/\d+(?:\.\d+)?/g);
+    if(current && nums && nums.length>=3){
+      let set=Number(nums[0]);
+      let weight=Number(nums[1]);
+      let reps=Number(nums[2]);
+      let oneRm=nums.length>=4?Number(nums[3]):e1rm(weight,reps);
+
+      // Avoid reading status bar or dates as sets
+      if(set>=1 && set<=10 && weight>=0 && weight<=1000 && reps>=1 && reps<=100){
+        current.sets.push({set,weight,reps,oneRm});
+      }
+    }
+  }
+
+  // Merge duplicate exercises from overlapping screenshots
+  const merged={};
+  found.forEach(item=>{
+    if(!item.name||!item.sets.length)return;
+    const key=item.name.toLowerCase();
+    if(!merged[key])merged[key]={name:item.name,sets:[]};
+    merged[key].sets.push(...item.sets);
+  });
+
+  return Object.values(merged).map(item=>{
+    // Top set = highest 1RM first, then weight, then reps
+    item.sets.sort((a,b)=>(b.oneRm-a.oneRm)||(b.weight-a.weight)||(b.reps-a.reps));
+    const top=item.sets[0];
+    return {
+      name:item.name,
+      weight:top.weight,
+      reps:top.reps,
+      oneRm:top.oneRm,
+      setCount:item.sets.length
+    };
+  }).filter(x=>x.name&&x.weight!==undefined&&x.reps);
+}
+async function processLiftoffScreenshots(){
+  if(typeof Tesseract==="undefined"){
+    ocrStatus.textContent="OCR library did not load. Make sure you are online, then refresh and try again.";
+    return;
+  }
+  const files=[...document.getElementById("liftoffImages").files];
+  if(!files.length){alert("Upload at least one screenshot first.");return;}
+  pendingLiftoffImport=[];
+  importPreview.innerHTML="";
+  rawOcr.textContent="";
+  rawOcrWrap.classList.add("hidden");
+  ocrStatus.textContent=`Reading ${files.length} screenshot${files.length>1?"s":""}... this can take a bit.`;
+
+  let allText="";
+  for(let i=0;i<files.length;i++){
+    ocrStatus.textContent=`Reading screenshot ${i+1} of ${files.length}...`;
+    try{
+      const result=await Tesseract.recognize(files[i],"eng",{
+        logger:m=>{
+          if(m.status==="recognizing text"){
+            ocrStatus.textContent=`Reading screenshot ${i+1} of ${files.length}... ${Math.round((m.progress||0)*100)}%`;
+          }
+        }
+      });
+      allText += "\n" + result.data.text;
+    }catch(err){
+      console.error(err);
+      ocrStatus.textContent="OCR failed on one image. Try a clearer screenshot.";
+    }
+  }
+
+  rawOcr.textContent=allText;
+  rawOcrWrap.classList.remove("hidden");
+  pendingLiftoffImport=parseLiftoffText(allText);
+
+  if(!pendingLiftoffImport.length){
+    ocrStatus.textContent="No lifts detected. Try a clearer screenshot or crop out extra UI.";
+    importPreview.innerHTML=`<div class="importItem"><div><strong>No lifts found</strong><span>Use screenshots where the lift name and set rows are visible.</span></div></div>`;
+    return;
+  }
+
+  ocrStatus.textContent=`Detected ${pendingLiftoffImport.length} lift${pendingLiftoffImport.length>1?"s":""}. Review, then import.`;
+  renderImportPreview();
+}
+function renderImportPreview(){
+  importPreview.innerHTML=pendingLiftoffImport.map((lift,i)=>`
+    <div class="importItem">
+      <div>
+        <strong>${lift.name}</strong>
+        <span>Top set: ${lift.weight} × ${lift.reps} • 1RM: ${lift.oneRm} • Sets read: ${lift.setCount}</span>
+      </div>
+      <button class="danger miniBtn" onclick="removePendingLift(${i})">Remove</button>
+    </div>
+  `).join("")+`<button class="primary" onclick="importPendingLiftoff()" type="button">Import ${pendingLiftoffImport.length} Lift${pendingLiftoffImport.length>1?"s":""}</button>`;
+}
+function removePendingLift(index){
+  pendingLiftoffImport.splice(index,1);
+  renderImportPreview();
+}
+function guessMuscleGroup(name){
+  const n=name.toLowerCase();
+  if(/bench|incline|fly|dip/.test(n))return"Chest";
+  if(/shoulder|lateral|raise/.test(n))return"Shoulders";
+  if(/tricep|pushdown|extension/.test(n))return"Triceps";
+  if(/curl|bicep|bayesian|hammer/.test(n))return"Biceps";
+  if(/row|pulldown|pull-up|pullup|lat/.test(n))return"Back";
+  if(/squat|rdl|leg|hamstring|calf|lunge/.test(n))return"Legs";
+  return"Other";
+}
+function importPendingLiftoff(){
+  if(!pendingLiftoffImport.length){alert("No detected lifts to import.");return;}
+  const today=new Date().toISOString().slice(0,10);
+  pendingLiftoffImport.forEach(item=>{
+    let existing=liftLibrary.find(l=>l.name.toLowerCase()===item.name.toLowerCase());
+    if(!existing){
+      liftLibrary.push({name:item.name,group:guessMuscleGroup(item.name),goalWeight:0,goalReps:0});
+      goals[item.name]={weight:0,reps:0};
+    }
+    lifts.push({
+      id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),
+      date:today,
+      lift:item.name,
+      weight:item.weight,
+      reps:item.reps,
+      importedOneRm:item.oneRm,
+      source:"Liftoff OCR"
+    });
+  });
+  save();
+  pendingLiftoffImport=[];
+  importPreview.innerHTML="";
+  ocrStatus.textContent="Imported successfully. Strength page updated.";
+  forms();
+  render();
+}
 function render(){
-  const score=recoveryScore();recoveryScore.textContent=score;ring.style.setProperty("--score",score+"%");ringText.textContent=score+"%";coachSummary.textContent=coachSummaryText();renderMetrics();liftRows();renderLogs();setTimeout(renderCharts,50)
+  const score=recoveryScore();recoveryScore.textContent=score;ring.style.setProperty("--score",score+"%");ringText.textContent=score+"%";coachSummary.textContent=coachSummaryText();renderAdvancedCoach();renderMetrics();liftRows();renderLogs();setTimeout(renderCharts,50)
 }
 dailyForm.addEventListener("submit",e=>{e.preventDefault();daily.push({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),date:date.value,weight:num(weight),calories:num(calories),protein:num(protein),carbs:num(carbs),fat:num(fat),water:num(water),sleep:num(sleep),energy:num(energy),soreness:num(soreness),notes:notes.value});save();forms();render()});
 addLiftForm.addEventListener("submit",e=>{
@@ -485,7 +782,13 @@ function num(el){return el.value===""?"":Number(el.value)}
 function delDaily(id){daily=daily.filter(e=>e.id!==id);save();render()}function delThrow(id){throws=throws.filter(e=>e.id!==id);save();render()}
 function exportData(){const blob=new Blob([JSON.stringify({daily,lifts,throws,goals,liftLibrary},null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="alex-athlete-os-final-data.json";a.click()}
 function importData(ev){const file=ev.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const d=JSON.parse(reader.result);daily=d.daily||daily;lifts=d.lifts||lifts;throws=d.throws||throws;goals=d.goals||goals;liftLibrary=d.liftLibrary||liftLibrary;normalizeGoals();save();forms();render()}catch{alert("Bad file")}};reader.readAsText(file)}
-function clearData(){if(confirm("Clear all local data?")){localStorage.clear();location.reload()}}
+function clearData(){
+  if(confirm("Clear all Athlete OS data on this device?")){
+    Object.values(KEYS).forEach(k=>localStorage.removeItem(k));
+    localStorage.removeItem("aos-final-lift-library");
+    location.reload();
+  }
+}
 nav();forms();render();
 </script>
 </body>
